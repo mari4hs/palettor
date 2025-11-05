@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Palettor | Intelligent Palette Extractor</title>
+    <meta name="description"
+        content="Palettor - Extract amazing color palettes from your images. Professional tool for designers and developers.">
+    <meta name="keywords" content="color palette, color extractor, design, UI, UX, CSS, hexadecimal">
+    <link rel="stylesheet" href="styles/main.css">
+    <link rel="stylesheet" href="styles/components.css">
+</head>
+
+<body>
+    <div class="app-background">
+        <div class="particles-container" id="particles"></div>
+    </div>
+
+    <div class="container">
+        <!-- Language Switcher -->
+        <div class="language-switcher">
+            <button class="lang-btn active" data-lang="pt">PT</button>
+            <button class="lang-btn" data-lang="en">EN</button>
+        </div>
+
+        <!-- Header -->
+        <header class="header">
+            <div class="header-content">
+                <div class="logo-container">
+                    <div class="logo-icon">🎨</div>
+                    <h1 class="logo" data-i18n="title">Palettor</h1>
+                </div>
+                <p class="tagline" data-i18n="tagline">Cores certas, contraste ideal.</p>
+            </div>
+        </header>
+
+        <main class="main-content">
+            <!-- Área de Upload -->
+            <section class="upload-section">
+                <div class="section-card">
+                    <div class="card-header">
+                        <h2 data-i18n="upload.title">📁 Upload de Imagem</h2>
+                        <div class="card-badge" data-i18n="upload.step">Passo 1</div>
+                    </div>
+                    <div class="upload-zone" id="dropZone">
+                        <div class="upload-content">
+                            <div class="upload-icon">
+                                <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="1.5">
+                                    <path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z" />
+                                    <polyline points="14 2 14 8 20 8" />
+                                    <line x1="16" y1="13" x2="8" y2="13" />
+                                    <line x1="16" y1="17" x2="8" y2="17" />
+                                    <polyline points="10 9 9 9 8 9" />
+                                </svg>
+                            </div>
+                            <h3 data-i18n="upload.drag">Arraste e solte sua imagem</h3>
+                            <p data-i18n="upload.supported">Suporta JPG, PNG, WebP e GIF</p>
+
+                            <!-- Input file escondido -->
+                            <input type="file" id="fileInput" accept="image/*" class="hidden-file-input">
+
+                            <!-- Botão estilizado que vai acionar o input file -->
+                            <button class="btn-primary" id="selectBtn" type="button">
+                                <span class="btn-icon">
+                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                        stroke-width="2">
+                                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                                        <polyline points="17 8 12 3 7 8" />
+                                        <line x1="12" y1="3" x2="12" y2="15" />
+                                    </svg>
+                                </span>
+                                <span data-i18n="upload.select">Selecionar Arquivo</span>
+                            </button>
+                            <p class="upload-hint" data-i18n="upload.hint">Ou clique para procurar</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Preview da Imagem -->
+            <section class="preview-section" id="previewSection" style="display: none;">
+                <div class="section-card">
+                    <div class="card-header">
+                        <h2 data-i18n="preview.title">🖼️ Preview</h2>
+                        <div class="card-badge" data-i18n="preview.step">Passo 2</div>
+                    </div>
+                    <div class="preview-container">
+                        <div class="image-preview-container">
+                            <div class="image-frame">
+                                <img id="imagePreview" alt="Preview da imagem">
+                                <canvas id="imageCanvas" style="display: none;"></canvas>
+                            </div>
+                        </div>
+                        <div class="preview-controls">
+                            <button class="btn-primary" id="analyzeBtn">
+                                <span class="btn-icon">🎨</span>
+                                <span data-i18n="preview.analyze">Extrair Paleta de Cores</span>
+                            </button>
+                            <button class="btn-secondary" id="newImageBtn">
+                                <span class="btn-icon">🔄</span>
+                                <span data-i18n="preview.change">Trocar Imagem</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Paleta de Cores -->
+            <section class="palette-section" id="paletteSection" style="display: none;">
+                <div class="section-card">
+                    <div class="card-header">
+                        <h2 data-i18n="palette.title">🎨 Paleta Extraída</h2>
+                        <div class="card-badge" data-i18n="palette.result">Resultado</div>
+                    </div>
+
+                    <div class="controls-row">
+                        <div class="control-group">
+                            <label for="methodSelect" data-i18n="palette.method">Método de Extração</label>
+                            <select id="methodSelect" class="select-control">
+                                <option value="predominant" data-i18n="palette.predominant">🎯 Predominantes</option>
+                                <option value="vibrant" data-i18n="palette.vibrant">⚡ Vibrantes</option>
+                                <option value="balanced" data-i18n="palette.balanced">⚖️ Balanceadas</option>
+                            </select>
+                        </div>
+                        <button class="btn-outline" id="exportBtn">
+                            <span class="btn-icon">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="2">
+                                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                                    <polyline points="7 10 12 15 17 10" />
+                                    <line x1="12" y1="15" x2="12" y2="3" />
+                                </svg>
+                            </span>
+                            <span data-i18n="palette.export">Exportar Paleta</span>
+                        </button>
+                    </div>
+
+                    <div class="palette-container">
+                        <div class="palette" id="colorPalette"></div>
+                        <div class="palette-info" id="paletteInfo">
+                            <div class="info-card">
+                                <h4 data-i18n="palette.stats">📊 Estatísticas da Paleta</h4>
+                                <p data-i18n="palette.start">Selecione uma imagem para começar a análise cromática</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Ferramentas Avançadas -->
+                    <div class="tools-section">
+                        <h3 class="tools-title" data-i18n="tools.title">🛠️ Ferramentas Profissionais</h3>
+                        <div class="tools-grid">
+                            <div class="tool-card">
+                                <div class="tool-header">
+                                    <h4 data-i18n="tools.contrast">🎯 Teste de Contraste</h4>
+                                    <span class="tool-badge">WCAG</span>
+                                </div>
+                                <div class="contrast-test" id="contrastTest">
+                                    <div class="contrast-placeholder">
+                                        <div class="placeholder-icon">👆</div>
+                                        <p data-i18n="tools.selectColors">Selecione duas cores</p>
+                                        <small data-i18n="tools.clickHint">Clique em duas cores da paleta para testar
+                                            contraste</small>
+                                    </div>
+                                </div>
+                                <div class="wcag-info">
+                                    <div class="info-item aaa">
+                                        <span class="badge">AAA</span>
+                                        <div class="info-content">
+                                            <strong data-i18n="tools.aaa.title">Excelente (7:1+)</strong>
+                                            <span data-i18n="tools.aaa.desc">Textos pequenos e longas leituras</span>
+                                        </div>
+                                    </div>
+                                    <div class="info-item aa">
+                                        <span class="badge">AA</span>
+                                        <div class="info-content">
+                                            <strong data-i18n="tools.aa.title">Bom (4.5:1+)</strong>
+                                            <span data-i18n="tools.aa.desc">Textos normais e interfaces</span>
+                                        </div>
+                                    </div>
+                                    <div class="info-item fail">
+                                        <span class="badge">Falha</span>
+                                        <div class="info-content">
+                                            <strong data-i18n="tools.fail.title">Ruim (&lt;4.5:1)</strong>
+                                            <span data-i18n="tools.fail.desc">Não recomendado para textos</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="tool-card">
+                                <div class="tool-header">
+                                    <h4 data-i18n="tools.visualization">🌈 Visualização</h4>
+                                    <span class="tool-badge" data-i18n="tools.gradient">Gradiente</span>
+                                </div>
+                                <div class="gradient-preview" id="gradientPreview">
+                                    <div class="gradient-placeholder">
+                                        <div class="placeholder-icon">🎨</div>
+                                        <p data-i18n="tools.gradientTitle">Gradiente da Paleta</p>
+                                        <small data-i18n="tools.gradientDesc">Visualize a transição entre as
+                                            cores</small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <!-- Footer Simplificado -->
+        <footer class="footer">
+            <div class="footer-content">
+                <p>&copy; 2025 Mariah Santos</p>
+            </div>
+        </footer>
+    </div>
+
+    <!-- Notificação -->
+    <div class="notification" id="notification"></div>
+
+    <script src="js/utils.js"></script>
+    <script src="js/colorExtractor.js"></script>
+    <script src="js/uiManager.js"></script>
+    <script src="js/language.js"></script>
+    <script src="js/main.js"></script>
+</body>
+
+</html>
